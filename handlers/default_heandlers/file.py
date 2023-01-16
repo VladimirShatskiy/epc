@@ -2,9 +2,11 @@ from telebot.types import Message
 from config_data.config import BRANCH_PHOTO
 from loader import bot
 import os
+from loguru import logger
 
 
 @bot.message_handler(content_types=['document'])
+@logger.catch
 def bot_file(message: Message):
 
     file_info = bot.get_file(message.document.file_id)

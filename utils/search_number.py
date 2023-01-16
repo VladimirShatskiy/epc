@@ -2,6 +2,7 @@ from telebot.types import Message
 from config_data.config import GlobalOrderDict
 from loader import bot
 from keyboards import inline
+from loguru import logger
 
 
 def get_number(message: Message):
@@ -9,6 +10,7 @@ def get_number(message: Message):
     bot.register_next_step_handler(mesg, search)
 
 
+@logger.catch
 def search(message: Message):
     order_list = []
     if GlobalOrderDict == {}:

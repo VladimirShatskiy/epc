@@ -4,8 +4,10 @@ from handlers.default_heandlers import start
 from loader import bot
 from config_data.config import GlobalOrderDict, GlobalOrder
 from keyboards import inline
+from loguru import logger
 
 
+@logger.catch
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     """

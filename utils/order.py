@@ -6,8 +6,10 @@ from config_data.config import BRANCH_PHOTO
 from keyboards.reply import yes_no
 from loader import bot
 import datetime
+from loguru import logger
 
 
+@logger.catch
 def confirmation_sending_server(message: Message):
     """
     Вызывает меню подтверждения отправки фото по ранее выбранному заказ наряду
@@ -31,18 +33,21 @@ def confirmation_sending_server(message: Message):
     bot.register_next_step_handler(message, message_input_step)
 
 
+@logger.catch
 def choice(message: Message):
 
     global GlobalOrderDict
-    for item in os.listdir(BRANCH_PHOTO):
-        if os.path.isdir(os.path.join(BRANCH_PHOTO, item)):
-            str_date = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(BRANCH_PHOTO, item)))
-            shot_date = str_date.strftime("%d %m %Y")
-            if shot_date in GlobalOrderDict:
-                GlobalOrderDict[shot_date] += [item]
-            else:
-                GlobalOrderDict[shot_date] = [item]
+    try:
+        for item in os.listdir(BRANCH_PHOTO):
+            if os.path.isdir(os.path.join(BRANCH_PHOTO, item)):
+                str_date = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(BRANCH_PHOTO, item)))
+                shot_date = str_date.strftime("%d %m %Y")
+                if shot_date in GlobalOrderDict:
+                    GlobalOrderDict[shot_date] += [item]
+                else:
+                    GlobalOrderDict[shot_date] = [item]
+        bot.send_message(message.chat.id, "Просьба выбрать день для выбора заказ наряда",
+                         reply_markup=inline.calendar.keyboard(GlobalOrderDict.keys()))
 
-    bot.send_message(message.chat.id, "Просьба выбрать день для выбора заказ наряда",
-                     reply_markup=inline.calendar.keyboard(GlobalOrderDict.keys()))
-
+    except FileNotFoundError:
+        bot.send_message(message.chat.id, 'Отсутствует путь к папке с заказ нарядами')
