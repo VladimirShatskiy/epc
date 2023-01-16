@@ -1,7 +1,8 @@
+import json
 from telebot.types import Message
 from loader import bot
 import requests
-from config_data.config import BOT_TOKEN, BRANCH_PHOTO
+from config_data.config import BOT_TOKEN, BRANCH_PHOTO, BRANCH_USER_DATA
 import os
 from utils.order import confirmation_sending_server
 from loguru import logger
@@ -10,13 +11,23 @@ from loguru import logger
 @bot.message_handler(content_types=['photo'])
 @logger.catch
 def bot_photo(message: Message):
+
+    file_date = str(message.from_user.id) + '_conf.txt'
+    file_string = os.path.join(BRANCH_USER_DATA, file_date)
+    with open(file_string, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+
     file_id = message.photo[-1].file_id
     file_info = bot.get_file(file_id)
     file = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(BOT_TOKEN, file_info.file_path))
 
     # подтверждение ввода по заказ наряду
     confirmation_sending_server(message)
-    way = os.path.join(BRANCH_PHOTO, file_id + '.png')
-
-    with open(way, 'wb') as open_file:
-        open_file.write(file.content)
+    way = os.path.join(BRANCH_PHOTO, data['order'], data['type'], file_id + '.png')
+    try:
+        with open(way, 'wb') as open_file:
+            open_file.write(file.content)
+    except FileNotFoundError:
+        os.mkdir(os.path.join(BRANCH_PHOTO, data['order'], data['type']))
+        with open(way, 'wb') as open_file:
+            open_file.write(file.content)

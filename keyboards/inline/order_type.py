@@ -1,18 +1,17 @@
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-def keyboard(type_list: list) -> InlineKeyboardMarkup:
+def keyboard(type_dict: dict) -> InlineKeyboardMarkup:
     """
-    Клавиатура для выбора типа фотографий к заказ наряду
+    Клавиатура для выбора действия по заказ наряду
 
-    :param order_list: список заказ нарядов
+    :param type_dict: загруженный список действий
 
     :return: keyboard
     """
     markup = InlineKeyboardMarkup()
-    for item in sorted(type_list):
-        button = InlineKeyboardButton(item, callback_data='type,' + item)
+    for item in type_dict.keys():
+        button = InlineKeyboardButton(item, callback_data='type,' + item + ',' + type_dict[item])
         markup.add(button)
-    button = InlineKeyboardButton("Найти заказ наряд по номеру", callback_data='search_number')
-    markup.add(button)
+
     return markup
