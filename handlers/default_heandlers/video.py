@@ -23,10 +23,10 @@ def bot_video(message: Message):
 
     way = os.path.join(BRANCH_PHOTO, data['order'], data['type'], file_id + '.mov')
 
-    try:
+    if os.path.isdir(os.path.join(BRANCH_PHOTO, data['order'], data['type'])):
         with open(way, 'wb') as open_file:
             open_file.write(file.content)
-    except FileNotFoundError:
+    else:
         os.mkdir(os.path.join(BRANCH_PHOTO, data['order'], data['type']))
         with open(way, 'wb') as open_file:
             open_file.write(file.content)

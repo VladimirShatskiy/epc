@@ -20,10 +20,10 @@ def bot_file(message: Message):
     downloaded_file = bot.download_file(file_info.file_path)
 
     way = os.path.join(BRANCH_PHOTO, data['order'], data['type'], message.document.file_name)
-    try:
+    if os.path.isdir(os.path.join(BRANCH_PHOTO, data['order'], data['type'])):
         with open(way, 'wb') as open_file:
             open_file.write(downloaded_file)
-    except FileNotFoundError:
+    else:
         os.mkdir(os.path.join(BRANCH_PHOTO, data['order'], data['type']))
         with open(way, 'wb') as open_file:
             open_file.write(downloaded_file)

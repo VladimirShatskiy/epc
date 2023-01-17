@@ -24,10 +24,11 @@ def bot_photo(message: Message):
     # подтверждение ввода по заказ наряду
     if not confirmation_sending_server(message):
         way = os.path.join(BRANCH_PHOTO, data['order'], data['type'], file_id + '.png')
-        try:
+        # try:
+        if os.path.isdir(os.path.join(BRANCH_PHOTO, data['order'], data['type'])):
             with open(way, 'wb') as open_file:
                 open_file.write(file.content)
-        except FileNotFoundError:
+        else:
             os.mkdir(os.path.join(BRANCH_PHOTO, data['order'], data['type']))
             with open(way, 'wb') as open_file:
                 open_file.write(file.content)
