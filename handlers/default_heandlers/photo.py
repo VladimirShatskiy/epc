@@ -22,12 +22,15 @@ def bot_photo(message: Message):
     file = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(BOT_TOKEN, file_info.file_path))
 
     # подтверждение ввода по заказ наряду
-    confirmation_sending_server(message)
-    way = os.path.join(BRANCH_PHOTO, data['order'], data['type'], file_id + '.png')
-    try:
-        with open(way, 'wb') as open_file:
-            open_file.write(file.content)
-    except FileNotFoundError:
-        os.mkdir(os.path.join(BRANCH_PHOTO, data['order'], data['type']))
-        with open(way, 'wb') as open_file:
-            open_file.write(file.content)
+    if not confirmation_sending_server(message):
+        way = os.path.join(BRANCH_PHOTO, data['order'], data['type'], file_id + '.png')
+        try:
+            with open(way, 'wb') as open_file:
+                open_file.write(file.content)
+        except FileNotFoundError:
+            os.mkdir(os.path.join(BRANCH_PHOTO, data['order'], data['type']))
+            with open(way, 'wb') as open_file:
+                open_file.write(file.content)
+    else:
+        bot.send_message(message.from_user.id, "Данные сохранены для отправки на устройстве, "
+                                               "отправку можно будет сделать позже")

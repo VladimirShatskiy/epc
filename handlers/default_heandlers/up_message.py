@@ -12,8 +12,7 @@ def up_message(message):
     with open(file_string, 'r', encoding='utf-8') as file:
         data = json.load(file)
 
-    text = f'Заказ наряд {data["order"]}\n' \
-           f'тип  {data["rus_type"]}'
+    text = f'ЗН {data["order"]} тип {data["rus_type"]}'
 
     to_pin = bot.send_message(message, text).message_id
     bot.pin_chat_message(chat_id=message, message_id=to_pin)

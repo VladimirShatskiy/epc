@@ -18,7 +18,6 @@ def callback_query(call):
     """
 
     if call.data.split(',')[0] == "calendar":
-
         try:
             bot.send_message(call.from_user.id, "Просьба выбрать заказ наряд",
                              reply_markup=inline.choice_order.keyboard(GlobalOrderDict[call.data.split(',')[1]]))
@@ -27,10 +26,6 @@ def callback_query(call):
                                                 ' просьба начать заново выбрав в меню команду\n/order')
 
     if call.data.split(',')[0] == "order":
-
-        # text = f"Выбран заказ наряд {call.data.split(',')[1]}\n можно загружать по нему фото"
-        # bot.send_message(call.from_user.id, text)
-
         file_date = str(call.from_user.id) + '_conf.txt'
         file_string = os.path.join(BRANCH_USER_DATA, file_date)
         with open(file_string, 'r', encoding='utf-8') as file:
@@ -38,17 +33,12 @@ def callback_query(call):
             data['order'] = call.data.split(',')[1]
         with open(file_string, 'w', encoding='utf-8') as file:
             json.dump(data, file, indent=4)
-
         up_message.up_message(call.from_user.id)
 
     if call.data == "search_number":
         search_number.get_number(call.from_user.id)
 
     if call.data.split(',')[0] == "type":
-
-        # text = f"Выбрано действие {call.data.split(',')[1]}\n"
-        # bot.send_message(call.from_user.id, text)
-
         file_date = str(call.from_user.id) + '_conf.txt'
         file_string = os.path.join(BRANCH_USER_DATA, file_date)
         with open(file_string, 'r', encoding='utf-8') as file:
@@ -57,7 +47,6 @@ def callback_query(call):
             data['rus_type'] = call.data.split(',')[1]
         with open(file_string, 'w', encoding='utf-8') as file:
             json.dump(data, file, indent=4)
-
         up_message.up_message(call.from_user.id)
 
 
