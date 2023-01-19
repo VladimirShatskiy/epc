@@ -14,26 +14,37 @@ ID = 1
 def bot_video(message: Message):
 
     global ID
-    if message.media_group_id:
-        if message.media_group_id == ID:
-            pass
-        else:
-            ID = message.media_group_id
-            bot.send_message(message.from_user.id, "Загрузил альбом видео на сервер")
-    else:
-        bot.send_message(message.from_user.id, "Загрузил видео на сервер")
 
     file_date = str(message.from_user.id) + '_conf.txt'
     file_string = os.path.join(BRANCH_USER_DATA, file_date)
     with open(file_string, 'r', encoding='utf-8') as file:
         data = json.load(file)
 
+    if data['order'] == "" or data['type'] == "":
+        bot.send_message(message.from_user.id, "Ошибка!!! \nНевозможно загрузить видео\n"
+                                               "Для загрузки необходимо выбрать \n"
+                                               "заказ наряд /order \n"
+                                               "и тип действия /type\n\n"
+                                               "Обратите внимание на верхнее закрепленное сообщение, "
+                                               "в нем указывается заказ наряд и тип действия")
+        return
+
+    if message.media_group_id:
+        if message.media_group_id == ID:
+            pass
+        else:
+            ID = message.media_group_id
+            bot.send_message(message.from_user.id, "Загрузил видео из альбома на сервер")
+    else:
+        bot.send_message(message.from_user.id, "Загрузил видео на сервер")
+
+
+
     file_id = message.video.file_id
     file_info = bot.get_file(file_id)
     file = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(BOT_TOKEN, file_info.file_path))
 
     way = os.path.join(BRANCH_PHOTO, data['order'], data['type'], file_id + '.mov')
-
     if os.path.isdir(os.path.join(BRANCH_PHOTO, data['order'], data['type'])):
         with open(way, 'wb') as open_file:
             open_file.write(file.content)

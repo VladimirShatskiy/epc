@@ -6,6 +6,7 @@ from config_data.config import GlobalOrderDict, BRANCH_USER_DATA
 from keyboards import inline
 from loguru import logger
 from handlers.default_heandlers import up_message
+from handlers.default_heandlers import type_order
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -34,6 +35,7 @@ def callback_query(call):
         with open(file_string, 'w', encoding='utf-8') as file:
             json.dump(data, file, indent=4)
         up_message.up_message(call.from_user.id)
+        type_order.bot_type(call)
 
     if call.data == "search_number":
         search_number.get_number(call.from_user.id)
