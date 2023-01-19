@@ -6,11 +6,22 @@ import requests
 from config_data.config import BOT_TOKEN, BRANCH_PHOTO, BRANCH_USER_DATA
 import os
 from loguru import logger
+ID = 1
 
 
 @bot.message_handler(content_types=['video'])
 @logger.catch
 def bot_video(message: Message):
+
+    global ID
+    if message.media_group_id:
+        if message.media_group_id == ID:
+            pass
+        else:
+            ID = message.media_group_id
+            bot.send_message(message.from_user.id, "Загрузил альбом видео на сервер")
+    else:
+        bot.send_message(message.from_user.id, "Загрузил видео на сервер")
 
     file_date = str(message.from_user.id) + '_conf.txt'
     file_string = os.path.join(BRANCH_USER_DATA, file_date)

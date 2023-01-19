@@ -10,6 +10,8 @@ from loader import bot
 import datetime
 from loguru import logger
 
+global id
+
 
 @logger.catch
 def confirmation_sending_server(message: Message) -> bool:
@@ -18,11 +20,14 @@ def confirmation_sending_server(message: Message) -> bool:
 
     :return: bool
     """
+
     if not utils.check_ready_record.check(message):
         return False
 
     text = f'Загрузить фото на сервер по заказ наряду ?'
-    bot.send_message(message.chat.id, text, reply_markup=yes_no.keyboard())
+    # bot.delete_message(message.chat.id, id.message_id)
+    id = bot.send_message(message.chat.id, text, reply_markup=yes_no.keyboard())
+
 
     @bot.message_handler(content_types=['text'])
     # забираем ответ на запрос
@@ -37,6 +42,7 @@ def confirmation_sending_server(message: Message) -> bool:
             return False
     bot.register_next_step_handler(message, message_input_step)
     return False
+
 
 @logger.catch
 def choice(message: Message):

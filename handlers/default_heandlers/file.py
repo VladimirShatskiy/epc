@@ -10,6 +10,7 @@ from loguru import logger
 @bot.message_handler(content_types=['document'])
 @logger.catch
 def bot_file(message: Message):
+    bot.send_message(message.from_user.id, "Загрузил файл на сервер")
 
     file_date = str(message.from_user.id) + '_conf.txt'
     file_string = os.path.join(BRANCH_USER_DATA, file_date)
