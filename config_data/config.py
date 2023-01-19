@@ -18,6 +18,7 @@ DEFAULT_COMMANDS = (
 BRANCH_USER_DATA = 'user_data'
 BRANCH_PHOTO = 'Photo'
 BRANCH_ORDER = 'Order'
+GROUP_ID = "*"
 
 GlobalOrderDict = {}  # список всех директорий со списками заказ нарядов
 

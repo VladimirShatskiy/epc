@@ -16,4 +16,3 @@ def create_user_file(message: Message) -> None:
 
     with open(os.path.join(BRANCH_USER_DATA, file_config), 'w', encoding='utf-8') as file:
         json.dump(FILE_CONFIG_START, file, indent=4)
-
