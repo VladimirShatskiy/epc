@@ -4,6 +4,8 @@ from loader import bot
 from states.contact_info import UserInfo
 from telebot.types import Message, ReplyKeyboardRemove
 
+from utils.set_bot_commands import set_default_commands
+
 
 @bot.message_handler(commands=['survey'])
 def survey(message: Message) -> None:

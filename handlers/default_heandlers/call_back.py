@@ -2,7 +2,7 @@ import json
 import os
 from utils import search_number
 from loader import bot
-from config_data.config import GlobalOrderDict, BRANCH_USER_DATA, CUR, CONNECT_BASE
+from config_data.config import GlobalOrderDict, BRANCH_USER_DATA, CUR, CONNECT_BASE, BRANCH_PHOTO, lock
 from keyboards import inline
 from loguru import logger
 from handlers.default_heandlers import up_message
@@ -28,9 +28,29 @@ def callback_query(call):
 
     if call.data.split(',')[0] == "order":
         data = (call.data.split(',')[1], call.from_user.id,)
+        lock.acquire(True)
         CUR.execute("""UPDATE users SET "order" = ? WHERE telegram_id = ?""", data)
         CONNECT_BASE.commit()
+        lock.release()
         up_message.up_message(call.from_user.id)
+
+#  Проверка наличия телефонного номера в папке заказ наряда
+        try:
+            way = os.path.join(BRANCH_PHOTO, data[0], 'phone.txt')
+            with open(way, 'r') as open_file:
+                phone = open_file.read()
+
+            data_sql = (data[0], phone)
+            lock.acquire(True)
+            CUR.execute("""UPDATE users SET "order" = ? WHERE  "phone" = ?""", data_sql)
+            CONNECT_BASE.commit()
+            lock.release()
+        except FileNotFoundError:
+            bot.send_message(call.from_user.id, "!!!ВНИМАНИЕ!!!\n"
+                                                "Не подгружен телефон клиента\n"
+                                                "Отправка фото клиенту невозможна")
+
+
         type_order.bot_type(call)
 
     if call.data == "search_number":
@@ -38,9 +58,10 @@ def callback_query(call):
 
     if call.data.split(',')[0] == "type":
         data = (call.data.split(',')[1],call.data.split(',')[2], call.from_user.id,)
+        lock.acquire(True)
         CUR.execute("""UPDATE users SET "order_type_rus" = ?, "order_type" = ? WHERE telegram_id = ?""", data)
         CONNECT_BASE.commit()
-
+        lock.release()
         up_message.up_message(call.from_user.id)
 
 

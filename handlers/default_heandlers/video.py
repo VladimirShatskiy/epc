@@ -1,9 +1,8 @@
-import json
 
 from telebot.types import Message
 from loader import bot
 import requests
-from config_data.config import BOT_TOKEN, BRANCH_PHOTO, BRANCH_USER_DATA, CUR, lock
+from config_data.config import BOT_TOKEN, BRANCH_PHOTO, CUR, lock
 import os
 from loguru import logger
 ID = 1
@@ -30,17 +29,6 @@ def bot_video(message: Message):
                                                "в нем указывается заказ наряд и тип действия")
         return
 
-    if message.media_group_id:
-        if message.media_group_id == ID:
-            pass
-        else:
-            ID = message.media_group_id
-            bot.send_message(message.from_user.id, "Загрузил видео из альбома на сервер")
-    else:
-        bot.send_message(message.from_user.id, "Загрузил видео на сервер")
-
-
-
     file_id = message.video.file_id
     file_info = bot.get_file(file_id)
     file = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(BOT_TOKEN, file_info.file_path))
@@ -53,3 +41,35 @@ def bot_video(message: Message):
         os.mkdir(os.path.join(BRANCH_PHOTO, data[0], data[1]))
         with open(way, 'wb') as open_file:
             open_file.write(file.content)
+
+    data_sql = (data[0],)
+    lock.acquire(True)
+    CUR.execute("""SELECT telegram_id, order_type_rus FROM users WHERE "order" = ? and user_type = 3""", data_sql)
+    data_for_send_id = CUR.fetchone()
+    data_sql = (message.from_user.id,)
+    CUR.execute("""SELECT order_type_rus FROM users WHERE "telegram_id" = ? """, data_sql)
+    data_for_send_type = CUR.fetchone()
+    lock.release()
+    try:
+
+        bot.send_video(data_for_send_id[0], file.content, data_for_send_type[0])
+        error_mes = False
+    except TypeError:
+        error_mes = True
+
+    if message.media_group_id:
+        if message.media_group_id == ID:
+            pass
+        else:
+            ID = message.media_group_id
+            bot.send_message(message.from_user.id, "Загрузил видео из альбома на сервер")
+            if error_mes:
+                bot.send_message(message.from_user.id, "!!! Видео из альбома НЕ отправлено клиенту !!!")
+            else:
+                bot.send_message(message.from_user.id, "Видео из альбома отправлено клиенту")
+    else:
+        bot.send_message(message.from_user.id, "Загрузил видео на сервер")
+        if error_mes:
+            bot.send_message(message.from_user.id, "!!! Видео НЕ отправлено клиенту !!!")
+        else:
+            bot.send_message(message.from_user.id, "Видео отправлено клиенту")

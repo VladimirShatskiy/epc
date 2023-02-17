@@ -14,24 +14,15 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 CONNECT_BASE = sqlite3.connect('drive.sqlite', check_same_thread=False)
 CUR = CONNECT_BASE.cursor()
 
+
 DEFAULT_COMMANDS = (
     ('start', "Запустить бота"),
     ('help', "Вывести справку"),
     ('order', "Выбрать заказ наряд"),
-    ('type', "Выбрать действие")
-)
-DEFAULT_COMMANDS_ADMIN = (
-    ('start', "Запустить бота"),
-    ('admin_state', "Администрирование"),
-    ('help', "Вывести справку"),
-    ('order', "Выбрать заказ наряд"),
-    ('type', "Выбрать действие")
+    ('type', "Выбрать действие"),
+    ('admin', "Администрирование"),
 )
 
-DEFAULT_COMMANDS_CLIENT = (
-    ('start', "Запустить бота"),
-    ('help', "Вывести справку"),
-)
 lock = threading.Lock()
 
 BRANCH_USER_DATA = 'user_data'
