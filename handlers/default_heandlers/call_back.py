@@ -2,7 +2,7 @@ import json
 import os
 from utils import search_number
 from loader import bot
-from config_data.config import GlobalOrderDict, BRANCH_USER_DATA
+from config_data.config import GlobalOrderDict, BRANCH_USER_DATA, CUR, CONNECT_BASE
 from keyboards import inline
 from loguru import logger
 from handlers.default_heandlers import up_message
@@ -27,13 +27,9 @@ def callback_query(call):
                                                 ' просьба начать заново выбрав в меню команду\n/order')
 
     if call.data.split(',')[0] == "order":
-        file_date = str(call.from_user.id) + '_conf.txt'
-        file_string = os.path.join(BRANCH_USER_DATA, file_date)
-        with open(file_string, 'r', encoding='utf-8') as file:
-            data = json.load(file)
-            data['order'] = call.data.split(',')[1]
-        with open(file_string, 'w', encoding='utf-8') as file:
-            json.dump(data, file, indent=4)
+        data = (call.data.split(',')[1], call.from_user.id,)
+        CUR.execute("""UPDATE users SET "order" = ? WHERE telegram_id = ?""", data)
+        CONNECT_BASE.commit()
         up_message.up_message(call.from_user.id)
         type_order.bot_type(call)
 
@@ -41,14 +37,10 @@ def callback_query(call):
         search_number.get_number(call.from_user.id)
 
     if call.data.split(',')[0] == "type":
-        file_date = str(call.from_user.id) + '_conf.txt'
-        file_string = os.path.join(BRANCH_USER_DATA, file_date)
-        with open(file_string, 'r', encoding='utf-8') as file:
-            data = json.load(file)
-            data['type'] = call.data.split(',')[2]
-            data['rus_type'] = call.data.split(',')[1]
-        with open(file_string, 'w', encoding='utf-8') as file:
-            json.dump(data, file, indent=4)
+        data = (call.data.split(',')[1],call.data.split(',')[2], call.from_user.id,)
+        CUR.execute("""UPDATE users SET "order_type_rus" = ?, "order_type" = ? WHERE telegram_id = ?""", data)
+        CONNECT_BASE.commit()
+
         up_message.up_message(call.from_user.id)
 
 

@@ -8,3 +8,4 @@ from . import call_back
 from . import type_order
 from . import up_message
 from . import echo
+from . import admin

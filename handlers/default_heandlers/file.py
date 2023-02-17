@@ -1,7 +1,5 @@
-import json
-
 from telebot.types import Message
-from config_data.config import BRANCH_PHOTO, BRANCH_USER_DATA
+from config_data.config import BRANCH_PHOTO, CUR, lock
 from loader import bot
 import os
 from loguru import logger
@@ -12,20 +10,22 @@ from loguru import logger
 def bot_file(message: Message):
     bot.send_message(message.from_user.id, "Загрузил файл на сервер")
 
-    file_date = str(message.from_user.id) + '_conf.txt'
-    file_string = os.path.join(BRANCH_USER_DATA, file_date)
-    with open(file_string, 'r', encoding='utf-8') as file:
-        data = json.load(file)
+    lock.acquire(True)
+    data = (message.from_user.id,)
+    CUR.execute("""SELECT "order", "order_type" FROM users WHERE "telegram_id" = ? """, data)
+    data = CUR.fetchone()
+    lock.release()
+
 
     file_info = bot.get_file(message.document.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
 
-    way = os.path.join(BRANCH_PHOTO, data['order'], data['type'], message.document.file_name)
-    if os.path.isdir(os.path.join(BRANCH_PHOTO, data['order'], data['type'])):
+    way = os.path.join(BRANCH_PHOTO, data[0], data[1], message.document.file_name)
+    if os.path.isdir(os.path.join(BRANCH_PHOTO, data[0], data[1])):
         with open(way, 'wb') as open_file:
             open_file.write(downloaded_file)
     else:
-        os.mkdir(os.path.join(BRANCH_PHOTO, data['order'], data['type']))
+        os.mkdir(os.path.join(BRANCH_PHOTO, data[0], data[1]))
         with open(way, 'wb') as open_file:
             open_file.write(downloaded_file)
 
