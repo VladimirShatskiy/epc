@@ -41,19 +41,20 @@ def bot_photo(message: Message):
     with open(way, 'wb') as open_file:
         open_file.write(file.content)
 
-
     data_sql = (data[0],)
     lock.acquire(True)
     CUR.execute("""SELECT telegram_id, order_type_rus FROM users WHERE "order" = ? and user_type = 3""", data_sql)
     data_for_send_id = CUR.fetchone()
     data_sql = (message.from_user.id,)
-    CUR.execute("""SELECT order_type_rus FROM users WHERE "telegram_id" = ? """, data_sql)
+    CUR.execute("""SELECT order_type_rus, order_type FROM users WHERE "telegram_id" = ? """, data_sql)
     data_for_send_type = CUR.fetchone()
     lock.release()
     try:
-
-        bot.send_photo(data_for_send_id[0], file.content, data_for_send_type[0])
-        error_mes = False
+        if data_for_send_type[1] == "Service":
+            error_mes = True
+        else:
+            bot.send_photo(data_for_send_id[0], file.content, data_for_send_type[0])
+            error_mes = False
     except TypeError:
         error_mes = True
 
