@@ -1,4 +1,4 @@
-from config_data.config import CUR
+from config_data.config import CUR, lock
 from loader import bot
 
 
@@ -6,7 +6,8 @@ def up_message(message):
 
     bot.unpin_all_chat_messages(message)
     data = (message,)
-    CUR.execute("""SELECT "order", "order_type_rus" FROM users WHERE telegram_id = ?""", data)
+    with lock:
+        CUR.execute("""SELECT "order", "order_type_rus" FROM users WHERE telegram_id = ?""", data)
 
     data = (CUR.fetchall())
     try:

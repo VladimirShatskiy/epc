@@ -1,10 +1,7 @@
-import json
-import threading
-
 from telebot.types import Message
 from loader import bot
 import requests
-from config_data.config import BOT_TOKEN, BRANCH_PHOTO, BRANCH_USER_DATA, CUR, lock
+from config_data.config import BOT_TOKEN, BRANCH_PHOTO, CUR, lock
 import os
 from loguru import logger
 ID = 1
@@ -16,11 +13,10 @@ def bot_photo(message: Message):
 
     global ID
 
-    lock.acquire(True)
     data = (message.from_user.id,)
-    CUR.execute("""SELECT "order", "order_type" FROM users WHERE "telegram_id" = ? """, data)
+    with lock:
+        CUR.execute("""SELECT "order", "order_type" FROM users WHERE "telegram_id" = ? """, data)
     data = CUR.fetchone()
-    lock.release()
 
     if data[0] == "" or data[1] == "":
         bot.send_message(message.from_user.id, "Ошибка!!! \nНевозможно загрузить фото\n"
@@ -42,13 +38,13 @@ def bot_photo(message: Message):
         open_file.write(file.content)
 
     data_sql = (data[0],)
-    lock.acquire(True)
-    CUR.execute("""SELECT telegram_id, order_type_rus FROM users WHERE "order" = ? and user_type = 3""", data_sql)
+    with lock:
+        CUR.execute("""SELECT telegram_id, order_type_rus FROM users WHERE "order" = ? and user_type = 3""", data_sql)
     data_for_send_id = CUR.fetchone()
     data_sql = (message.from_user.id,)
-    CUR.execute("""SELECT order_type_rus, order_type FROM users WHERE "telegram_id" = ? """, data_sql)
+    with lock:
+        CUR.execute("""SELECT order_type_rus, order_type FROM users WHERE "telegram_id" = ? """, data_sql)
     data_for_send_type = CUR.fetchone()
-    lock.release()
     try:
         if data_for_send_type[1] == "Service":
             error_mes = True

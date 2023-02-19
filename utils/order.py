@@ -2,7 +2,7 @@ from telebot.types import Message, ReplyKeyboardRemove
 import os
 
 import utils
-from config_data.config import GlobalOrderDict
+from config_data.config import GlobalOrderDict, CLOSED_ORDER, LENGTH_CLOSED_ORDER
 from keyboards import inline
 from config_data.config import BRANCH_PHOTO
 from keyboards.reply import yes_no
@@ -53,11 +53,12 @@ def choice(message: Message):
                 shot_date = str_date.strftime("%d %m %Y")
                 if shot_date in GlobalOrderDict:
                     if item not in GlobalOrderDict[shot_date]:
-                        GlobalOrderDict[shot_date] += [item]
+                        if str(item[-LENGTH_CLOSED_ORDER:]) != CLOSED_ORDER:
+                            GlobalOrderDict[shot_date] += [item]
                 else:
-                    GlobalOrderDict[shot_date] = [item]
+                    if str(item[-LENGTH_CLOSED_ORDER:]) != CLOSED_ORDER:
+                        GlobalOrderDict[shot_date] = [item]
         bot.send_message(message.chat.id, "Просьба выбрать день для выбора заказ наряда",
                          reply_markup=inline.calendar.keyboard(GlobalOrderDict.keys()))
-
     except FileNotFoundError:
         bot.send_message(message.chat.id, 'Отсутствует путь к папке с заказ нарядами')

@@ -43,13 +43,14 @@ def bot_video(message: Message):
             open_file.write(file.content)
 
     data_sql = (data[0],)
-    lock.acquire(True)
-    CUR.execute("""SELECT telegram_id, order_type_rus FROM users WHERE "order" = ? and user_type = 3""", data_sql)
+    with lock:
+        CUR.execute("""SELECT telegram_id, order_type_rus FROM users WHERE "order" = ? and user_type = 3""", data_sql)
     data_for_send_id = CUR.fetchone()
     data_sql = (message.from_user.id,)
-    CUR.execute("""SELECT order_type_rus, order_type FROM users WHERE "telegram_id" = ? """, data_sql)
+    with lock:
+        CUR.execute("""SELECT order_type_rus, order_type FROM users WHERE "telegram_id" = ? """, data_sql)
     data_for_send_type = CUR.fetchone()
-    lock.release()
+
     try:
         if data_for_send_type[1] == "Service":
             error_mes = True

@@ -14,7 +14,6 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 CONNECT_BASE = sqlite3.connect('drive.sqlite', check_same_thread=False)
 CUR = CONNECT_BASE.cursor()
 
-
 DEFAULT_COMMANDS = (
     ('start', "Запустить бота"),
     ('help', "Вывести справку"),
@@ -40,6 +39,9 @@ TYPE_ORDER = \
         "Прочее": "Other",
         "Для сервисных нужд": "Service"
     }
+
+LENGTH_CLOSED_ORDER = 6  # длина слова закрытого заказ наряда
+CLOSED_ORDER = 'closed'  # приписка к заказ наряду показывающие закрытый зн
 
 FILE_CONFIG_START = {
     'order': '',
