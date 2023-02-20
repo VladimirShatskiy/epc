@@ -1,4 +1,6 @@
 import os
+
+import handlers.default_heandlers.admin
 from utils import search_number
 from loader import bot
 from config_data.config import GlobalOrderDict, CUR, CONNECT_BASE, BRANCH_PHOTO, lock
@@ -25,7 +27,7 @@ def callback_query(call):
             bot.send_message(call.from_user.id, 'Произошла ошибка,\n'
                                                 ' просьба начать заново выбрав в меню команду\n/order')
 
-    if call.data.split(',')[0] == "order":
+    elif call.data.split(',')[0] == "order":
         data = (call.data.split(',')[1], call.from_user.id,)
         with lock:
             CUR.execute("""UPDATE users SET "order" = ? WHERE telegram_id = ?""", data)
@@ -51,16 +53,25 @@ def callback_query(call):
 
         type_order.bot_type(call)
 
-    if call.data == "search_number":
+    elif call.data == "search_number":
         search_number.get_number(call.from_user.id)
 
-    if call.data.split(',')[0] == "type":
+    elif call.data.split(',')[0] == "type":
         data = (call.data.split(',')[1],call.data.split(',')[2], call.from_user.id,)
         with lock:
             CUR.execute("""UPDATE users SET "order_type_rus" = ?, "order_type" = ? WHERE telegram_id = ?""", data)
             CONNECT_BASE.commit()
 
         up_message.up_message(call.from_user.id)
+
+    elif call.data == "change_level_access":
+        handlers.default_heandlers.admin.change_level_access(call)
+
+    elif call.data == "change_name_user":
+        handlers.default_heandlers.admin.change_name(call)
+
+    elif call.data == "view_dialog":
+        handlers.default_heandlers.admin.view_dialog(call)
 
 
 

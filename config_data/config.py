@@ -48,3 +48,5 @@ FILE_CONFIG_START = {
     'type': '',
     'rus_type': ''
 }
+
+ORGANIZATION_NAME = "Драйв Моторс"

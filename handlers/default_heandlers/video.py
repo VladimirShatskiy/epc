@@ -2,7 +2,7 @@
 from telebot.types import Message
 from loader import bot
 import requests
-from config_data.config import BOT_TOKEN, BRANCH_PHOTO, CUR, lock
+from config_data.config import BOT_TOKEN, BRANCH_PHOTO, CUR, lock, CONNECT_BASE
 import os
 from loguru import logger
 ID = 1
@@ -55,6 +55,10 @@ def bot_video(message: Message):
         if data_for_send_type[1] == "Service":
             error_mes = True
         else:
+            data = (data_sql[0], data_for_send_id[0])
+            with lock:
+                CUR.execute("""UPDATE users SET to_answer_id = ? WHERE telegram_id = ?""", data)
+                CONNECT_BASE.commit()
             bot.send_video(data_for_send_id[0], file.content, data_for_send_type[0])
             error_mes = False
     except TypeError:
