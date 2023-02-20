@@ -1,9 +1,11 @@
 import datetime
 import os
 
+import keyboards.inline.return_to_order
 from config_data.config import CUR, lock, ORGANIZATION_NAME, CONNECT_BASE, BRANCH_USER_DATA, BRANCH_PHOTO
 from database.attention_words import ATTENTION_WORDS
 from loader import bot
+from keyboards import inline
 
 
 
@@ -69,11 +71,11 @@ def get_text_messages(message):
                                                    "как только тут появятся какие либо сообщения можно будет связаться"
                                                    "с мастером и задать ему вопросы")
         else:
-            bot.send_message(return_date[0][0], return_date[0][1])
-            text = f"<b><i>Ответ клиента, по заказ наряду </i></b>\n" \
+            text = f"<b><i>Ответ клиента, по заказ наряду {return_date[0][1]}</i></b>\n" \
                    f"{message.text}"
             record_message(id_user=str(client_id[0]), order=return_date[0][1], message_text=message.text)
-            bot.send_message(return_date[0][0], text, parse_mode='html')
+            bot.send_message(return_date[0][0], text, parse_mode='html',
+                             reply_markup=keyboards.inline.return_to_order.keyboard(return_date[0][1]))
 
         # Проверка на нехорошие слова в ответе клиента
         for word in ATTENTION_WORDS:

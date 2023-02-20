@@ -1,3 +1,5 @@
+from os import link
+
 from telebot.types import Message
 from loader import bot
 from utils import creat_user_base
@@ -19,4 +21,6 @@ def bot_start(message: Message) -> None:
                           f"Вашего автомобиля, в том числе для согласования работ и предложенных рекомендаций\n"
                  )
     creat_user_base.create_user_base(message)
+
+
 

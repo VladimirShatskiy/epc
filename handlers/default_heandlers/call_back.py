@@ -57,7 +57,7 @@ def callback_query(call):
         search_number.get_number(call.from_user.id)
 
     elif call.data.split(',')[0] == "type":
-        data = (call.data.split(',')[1],call.data.split(',')[2], call.from_user.id,)
+        data = (call.data.split(',')[1], call.data.split(',')[2], call.from_user.id,)
         with lock:
             CUR.execute("""UPDATE users SET "order_type_rus" = ?, "order_type" = ? WHERE telegram_id = ?""", data)
             CONNECT_BASE.commit()
@@ -72,6 +72,9 @@ def callback_query(call):
 
     elif call.data == "view_dialog":
         handlers.default_heandlers.admin.view_dialog(call)
+
+    elif call.data.split(' ')[0] == "return_order":
+        print('sdfsd')
 
 
 
