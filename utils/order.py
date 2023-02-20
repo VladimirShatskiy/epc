@@ -1,8 +1,7 @@
 from telebot.types import Message, ReplyKeyboardRemove
 import os
-
 import utils
-from config_data.config import GlobalOrderDict, CLOSED_ORDER, LENGTH_CLOSED_ORDER
+from config_data.config import GlobalOrderDict, CLOSED_ORDER, LENGTH_CLOSED_ORDER, lock
 from keyboards import inline
 from config_data.config import BRANCH_PHOTO
 from keyboards.reply import yes_no
@@ -43,22 +42,29 @@ def confirmation_sending_server(message: Message) -> bool:
 
 @logger.catch
 def choice(message: Message):
+    """
+    Собирает из всех директории указанной в BRANCH_FOTO все директории и создает словарь по датам с заказ нарядами
+
+    :param message:
+    :return: глобальная переменная со списком заказ нарядов для меню выбора заказ наряда
+    """
 
     global GlobalOrderDict
     dict.clear(GlobalOrderDict)
-    try:
-        for item in os.listdir(BRANCH_PHOTO):
-            if os.path.isdir(os.path.join(BRANCH_PHOTO, item)):
-                str_date = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(BRANCH_PHOTO, item)))
-                shot_date = str_date.strftime("%d %m %Y")
-                if shot_date in GlobalOrderDict:
-                    if item not in GlobalOrderDict[shot_date]:
-                        if str(item[-LENGTH_CLOSED_ORDER:]) != CLOSED_ORDER:
+    with lock:
+        try:
+            for item in os.listdir(BRANCH_PHOTO):
+                if str(item[-LENGTH_CLOSED_ORDER:]) == CLOSED_ORDER:
+                    continue
+                if os.path.isdir(os.path.join(BRANCH_PHOTO, item)):
+                    str_date = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(BRANCH_PHOTO, item)))
+                    shot_date = str_date.strftime("%d %m %Y")
+                    if shot_date in GlobalOrderDict:
+                        if item not in GlobalOrderDict[shot_date]:
                             GlobalOrderDict[shot_date] += [item]
-                else:
-                    if str(item[-LENGTH_CLOSED_ORDER:]) != CLOSED_ORDER:
+                    else:
                         GlobalOrderDict[shot_date] = [item]
-        bot.send_message(message.chat.id, "Просьба выбрать день для выбора заказ наряда",
-                         reply_markup=inline.calendar.keyboard(GlobalOrderDict.keys()))
-    except FileNotFoundError:
-        bot.send_message(message.chat.id, 'Отсутствует путь к папке с заказ нарядами')
+            bot.send_message(message.chat.id, "Просьба выбрать день для выбора заказ наряда",
+                             reply_markup=inline.calendar.keyboard(GlobalOrderDict.keys()))
+        except FileNotFoundError:
+            bot.send_message(message.chat.id, 'Отсутствует путь к папке с заказ нарядами')
