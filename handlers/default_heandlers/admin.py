@@ -4,9 +4,11 @@ import keyboards.inline.admin
 from keyboards import inline
 from config_data.config import CUR, lock, CONNECT_BASE, BRANCH_PHOTO
 from loader import bot
+from loguru import logger
 
 
 @bot.message_handler(commands=['admin'])
+@logger.catch
 def bot_admin(message: Message):
     """
     Админский доступ на изменение доступов владельцев телефонов
@@ -31,6 +33,7 @@ def bot_admin(message: Message):
     bot.send_message(message.from_user.id, text, reply_markup=keyboards.inline.admin.keyboard())
 
 
+@logger.catch
 def change_access(message: Message):
     if message.text.lower() == "нет":
         bot.send_message(message.from_user.id, "Вышел из настроек")
@@ -61,6 +64,7 @@ def change_access(message: Message):
                                                "Вышел из настроек")
 
 
+@logger.catch
 def change_level_access(message: Message):
     with lock:
         CUR.execute("SELECT * FROM access_level")
@@ -77,6 +81,7 @@ def change_level_access(message: Message):
     bot.register_next_step_handler(text_message, change_access)
 
 
+@logger.catch
 def set_new_name(message: Message):
     if message.text.lower() == "нет":
         bot.send_message(message.from_user.id, "Вышел из настроек")
@@ -95,6 +100,7 @@ def set_new_name(message: Message):
             bot.send_message(message.from_user.id, "Внес изменение в имя")
 
 
+@logger.catch
 def change_name(message: Message):
     bot.send_message(message.from_user.id, 'Введи номер телефона и новое имя пользователя\n'
                                            'пример 1235456445 Иван')
@@ -104,6 +110,7 @@ def change_name(message: Message):
     bot.register_next_step_handler(text_message, set_new_name)
 
 
+@logger.catch
 def view_protokol(message: Message):
     if message.text.lower() == "нет":
         bot.send_message(message.from_user.id, "Вышел из настроек")
@@ -115,13 +122,13 @@ def view_protokol(message: Message):
     try:
         with open(file, 'r', encoding='utf-8') as file_open:
             data_file = file_open.read()
+            bot.send_message(message.from_user.id, data_file)
     except FileNotFoundError:
         bot.send_message(message.from_user.id, 'Неверно указан номер заказ наряда '
                                                'или переписки между клиентом и сотрудником не было')
 
-    bot.send_message(message.from_user.id, data_file)
 
-
+@logger.catch
 def view_dialog(message: Message):
 
     text_message = bot.send_message(message.from_user.id,
