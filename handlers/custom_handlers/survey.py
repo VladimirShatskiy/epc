@@ -16,7 +16,8 @@ def survey(message: Message) -> None:
     """
     bot.set_state(message.from_user.id, UserInfo.phone_number)  # , message.chat.id)
     bot.send_message(message.from_user.id, f'{message.from_user.full_name}\n'
-                                           f'Для начала работы, просьба подтвердить свой номер телефона',
+                                           f'Для начала работы, просьба подтвердить свой номер телефона\n'
+                                           f'👇👇👇   нажав на кнопку   👇👇👇',
                      reply_markup=request_contact())
 
 
@@ -32,7 +33,7 @@ def get_contact(message: Message) -> None:
             data['phone_number'] = message.contact.phone_number
 
             bot.send_message(message.from_user.id, 'Спасибо за подтверждение\n'
-                                                   'бот готов к работе',
+                                                   'бот готов к работе 👍',
                              reply_markup=ReplyKeyboardRemove())
             bot.set_state(message.from_user.id, None)
             data_update = [data['phone_number'], message.from_user.id]
@@ -44,11 +45,32 @@ def get_contact(message: Message) -> None:
 
     elif message.text.lower() == 'нет':
         bot.send_message(message.from_user.id, "Заполнение анкеты прервано\n"
-                                               "У вас нет доступа к боту", reply_markup=ReplyKeyboardRemove())
+                                               "У вас нет доступа к боту 😰", reply_markup=ReplyKeyboardRemove())
+
         bot.set_state(message.from_user.id, None)
     else:
+
         bot.send_message(message.from_user.id, "Для отправки номера необходимо нажать на кнопку\n"
-                                               "Или напишите 'нет' для завершения регистрации")
+                                               "Или напишите 'нет' для завершения регистрации\n"
+                                               "👇👇👇 кнопка ниже 👇👇👇")
+
+@bot.message_handler(content_types=["sticker"])
+def handle_docs_audio(message):
+    # Получим ID Стикера
+    sticker_id = message.sticker.file_id
+    print(sticker_id)
+    # Нужно получить путь, где лежит файл стикера на Сервере Телеграмма
+    file_info = bot.get_file(sticker_id)
+    # Теперь формируем ссылку и скачивам файл
+    # urllib.request.urlretrieve(f'http://api.telegram.org/file/bot{config.token}/{file_info.file_path}', file_info.file_path)
+
+@bot.message_handler(content_types=["emoji"])
+def handle_docs_audio(message):
+    # Получим ID Стикера
+    sticker_id = message.sticker.file_id
+    print(sticker_id)
+    # Нужно получить путь, где лежит файл стикера на Сервере Телеграмма
+    file_info = bot.get_file(sticker_id)
 
 
 

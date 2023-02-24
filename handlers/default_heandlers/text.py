@@ -1,6 +1,8 @@
 import datetime
 import os
 
+from loguru import logger
+
 import keyboards.inline.return_to_order
 from config_data.config import CUR, lock, ORGANIZATION_NAME, CONNECT_BASE, BRANCH_USER_DATA, BRANCH_PHOTO
 from database.attention_words import ATTENTION_WORDS
@@ -8,8 +10,8 @@ from loader import bot
 from keyboards import inline
 
 
-
 @bot.message_handler(content_types=['text'])
+@logger.catch
 def get_text_messages(message):
     """
     Получение любой текстовой строки и ее обработка.

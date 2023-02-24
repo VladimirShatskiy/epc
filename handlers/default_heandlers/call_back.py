@@ -21,8 +21,9 @@ def callback_query(call):
 
     if call.data.split(',')[0] == "calendar":
         try:
-            bot.send_message(call.from_user.id, "Просьба выбрать заказ наряд",
-                             reply_markup=inline.choice_order.keyboard(GlobalOrderDict[call.data.split(',')[1]]))
+            bot.edit_message_text(chat_id=call.from_user.id, message_id=call.message.id,
+                                  text="Просьба выбрать заказ наряд",
+                                  reply_markup=inline.choice_order.keyboard(GlobalOrderDict[call.data.split(',')[1]]))
         except:
             bot.send_message(call.from_user.id, 'Произошла ошибка,\n'
                                                 ' просьба начать заново выбрав в меню команду\n/order')
@@ -50,7 +51,8 @@ def callback_query(call):
             bot.send_message(call.from_user.id, "!!!ВНИМАНИЕ!!!\n"
                                                 "Не подгружен телефон клиента\n"
                                                 "Отправка фото клиенту невозможна")
-
+        bot.edit_message_text(chat_id=call.from_user.id, message_id=call.message.id,
+                              text="Обновил информацию в закрепленной троке", reply_markup="")
         type_order.bot_type(call)
 
     elif call.data == "search_number":
@@ -61,7 +63,8 @@ def callback_query(call):
         with lock:
             CUR.execute("""UPDATE users SET "order_type_rus" = ?, "order_type" = ? WHERE telegram_id = ?""", data)
             CONNECT_BASE.commit()
-
+        bot.edit_message_text(chat_id=call.from_user.id, message_id=call.message.id,
+                              text="Обновил информацию в закрепленной строке", reply_markup="")
         up_message.up_message(call.from_user.id)
 
     elif call.data == "change_level_access":
