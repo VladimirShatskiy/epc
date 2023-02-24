@@ -86,7 +86,8 @@ def set_new_name(message: Message):
     if message.text.lower() == "нет":
         bot.send_message(message.from_user.id, "Вышел из настроек")
         return
-    phone, name = message.text.split(' ')
+    phone, *all = message.text.split(' ')
+    name = message.text[len(phone) + 1:]
     data_phone = (phone,)
     data = (name, phone,)
     with lock:

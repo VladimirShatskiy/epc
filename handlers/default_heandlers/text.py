@@ -36,12 +36,13 @@ def get_text_messages(message):
         order_from_sql = CUR.fetchone()
         with lock:
             CUR.execute("""SELECT telegram_id FROM users WHERE "order"= ? and user_type = 3""", order_from_sql)
-        telegram_id_client = CUR.fetchone()[0]
+        temp = CUR.fetchone()
 
-        if telegram_id_client is None:
+        if temp is None:
             bot.send_message(message.from_user.id, 'Клиент по данному заказ наряду не подключен к боту'
                                                    ', отправка сообщения невозможна')
             return
+        telegram_id_client = temp[0]
 
         # Приписываем клиенту ID написавшего ему мастера
         data = (str(employee_id[0]), telegram_id_client,)
