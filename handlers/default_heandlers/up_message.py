@@ -1,7 +1,8 @@
 from config_data.config import CUR, lock
 from loader import bot
+from loguru import logger
 
-
+@logger.catch
 def up_message(message):
 
     bot.unpin_all_chat_messages(message)
