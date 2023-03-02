@@ -17,5 +17,7 @@ def keyboard() -> InlineKeyboardMarkup:
     markup.add(button2)
     button3 = InlineKeyboardButton("Просмотр протокола беседы", callback_data='view_dialog')
     markup.add(button3)
+    button4 = InlineKeyboardButton("Смена 'активности' пользователя ", callback_data='change_active')
+    markup.add(button4)
 
     return markup

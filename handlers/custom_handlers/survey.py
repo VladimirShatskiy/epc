@@ -36,11 +36,11 @@ def get_contact(message: Message) -> None:
                                                    'бот готов к работе 👍',
                              reply_markup=ReplyKeyboardRemove())
             bot.set_state(message.from_user.id, None)
-            data_update = [data['phone_number'], message.from_user.id]
+            data_update = (data['phone_number'], message.from_user.id, 1,)
             userid = (message.from_user.id,)
             CUR.execute("SELECT EXISTS(SELECT user_id FROM users WHERE telegram_id = ?)", userid)
             if CUR.fetchone()[0] == 0:
-                CUR.execute("""INSERT INTO users (phone, telegram_id) VALUES (?,?)""", data_update)
+                CUR.execute("""INSERT INTO users (phone, telegram_id, active) VALUES (?,?,?)""", data_update)
                 CONNECT_BASE.commit()
 
     elif message.text.lower() == 'нет':
@@ -53,24 +53,6 @@ def get_contact(message: Message) -> None:
         bot.send_message(message.from_user.id, "Для отправки номера необходимо нажать на кнопку\n"
                                                "Или напишите 'нет' для завершения регистрации\n"
                                                "👇👇👇 кнопка ниже 👇👇👇")
-
-@bot.message_handler(content_types=["sticker"])
-def handle_docs_audio(message):
-    # Получим ID Стикера
-    sticker_id = message.sticker.file_id
-    print(sticker_id)
-    # Нужно получить путь, где лежит файл стикера на Сервере Телеграмма
-    file_info = bot.get_file(sticker_id)
-    # Теперь формируем ссылку и скачивам файл
-    # urllib.request.urlretrieve(f'http://api.telegram.org/file/bot{config.token}/{file_info.file_path}', file_info.file_path)
-
-@bot.message_handler(content_types=["emoji"])
-def handle_docs_audio(message):
-    # Получим ID Стикера
-    sticker_id = message.sticker.file_id
-    print(sticker_id)
-    # Нужно получить путь, где лежит файл стикера на Сервере Телеграмма
-    file_info = bot.get_file(sticker_id)
 
 
 

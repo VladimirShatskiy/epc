@@ -76,8 +76,5 @@ def callback_query(call):
     elif call.data == "view_dialog":
         handlers.default_heandlers.admin.view_dialog(call)
 
-    elif call.data.split(' ')[0] == "return_order":
-        print('sdfsd')
-
-
-
+    elif call.data == "change_active":
+        handlers.default_heandlers.admin.change_active(call)

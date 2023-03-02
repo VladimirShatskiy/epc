@@ -1,7 +1,6 @@
 from telebot.types import Message
 import os
 import keyboards.inline.admin
-from keyboards import inline
 from config_data.config import CUR, lock, CONNECT_BASE, BRANCH_PHOTO
 from loader import bot
 from loguru import logger
@@ -24,13 +23,19 @@ def bot_admin(message: Message):
         return
 
     with lock:
-        CUR.execute("""SELECT main.users.name, phone, access_level  FROM users JOIN access_level \n"""
+        CUR.execute("""SELECT main.users.name, phone, access_level, active  FROM users JOIN access_level \n"""
                     """    ON users.user_type = access_level.type_id """)
 
     data = CUR.fetchall()
-    text = [f'телефон:{phone} доступ: {access}\n имя: {name}' for name, phone, access in data]
+    text = [f'Телефон:{phone} Имя: {name}\nДоступ: {access} Статус активности {active}' for name, phone, access, active in data]
     text = '\n'.join(text) + '\n'
-    bot.send_message(message.from_user.id, text, reply_markup=keyboards.inline.admin.keyboard())
+
+    with open('users.txt', 'w', encoding='utf-8') as file:
+        file.write(text)
+    with open('users.txt', 'r', encoding='utf-8') as file:
+        bot.send_document(message.from_user.id, file)
+    text_fo_bot = "Полный список пользователей в файле\n\n" + text[:300]
+    bot.send_message(message.from_user.id, text_fo_bot, reply_markup=keyboards.inline.admin.keyboard())
 
 
 @logger.catch
@@ -67,7 +72,7 @@ def change_access(message: Message):
 @logger.catch
 def change_level_access(message: Message):
     with lock:
-        CUR.execute("SELECT * FROM access_level")
+        CUR.execute("""SELECT * FROM access_level""")
     data = CUR.fetchall()
     text = 'Для смены доступа укажи номер телефона и через пробел цифру уровня\n\n'
     for id, level, name, description in data:
@@ -104,7 +109,7 @@ def set_new_name(message: Message):
 @logger.catch
 def change_name(message: Message):
     bot.send_message(message.from_user.id, 'Введи номер телефона и новое имя пользователя\n'
-                                           'пример 1235456445 Иван')
+                                           'Пример: 1235456445 Иван')
     text_message = bot.send_message(message.from_user.id,
                                     'Жду телефон с доступом или напиши "нет", для выхода из администратора')
 
@@ -137,4 +142,36 @@ def view_dialog(message: Message):
                                     'или напиши "нет", для выхода из администратора')
 
     bot.register_next_step_handler(text_message, view_protokol)
+
+
+@logger.catch
+def change_active_write(message: Message):
+    if message.text.lower() == "нет":
+        bot.send_message(message.from_user.id, "Вышел из настроек")
+        return
+
+    phone, active = message.text.split(' ')
+    data_phone = (phone,)
+    data = (active, phone,)
+    with lock:
+        CUR.execute("""SELECT * FROM users WHERE phone = ?""", data_phone)
+        if CUR.fetchone() is None:
+            bot.send_message(message.from_user.id, "Номер телефона неверен, повторите попытку\n"
+                                                   "Войдя в настройки заново")
+        else:
+            CUR.execute("""UPDATE users SET "active" = ? WHERE phone = ?""", data)
+            CONNECT_BASE.commit()
+            bot.send_message(message.from_user.id, f"Внес изменение номер телефона {phone} статус {active}")
+
+
+@logger.catch
+def change_active(message: Message):
+    text_message = bot.send_message(message.from_user.id,
+                                    'Введи номер телефона пользователя и состояние активности через пробел\n'
+                                    '1 - пользователь активен \n'
+                                    '2 - пользователь отключен\n'
+                                    'или напиши "нет", для выхода из администратора \n'
+                                    'Пример: 1235456445 1')
+
+    bot.register_next_step_handler(text_message, change_active_write)
 
