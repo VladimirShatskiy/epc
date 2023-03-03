@@ -8,6 +8,7 @@ from keyboards.reply import yes_no
 from loader import bot
 import datetime
 from loguru import logger
+from utils.access_verification import access_verification
 
 
 @logger.catch
@@ -22,7 +23,6 @@ def confirmation_sending_server(message: Message) -> bool:
         return False
 
     text = f'Загрузить фото на сервер по заказ наряду ?'
-    # bot.delete_message(message.chat.id, id.message_id)
     id = bot.send_message(message.chat.id, text, reply_markup=yes_no.keyboard())
 
     @bot.message_handler(content_types=['text'])
@@ -41,6 +41,7 @@ def confirmation_sending_server(message: Message) -> bool:
 
 
 @logger.catch
+@access_verification
 def choice(message: Message):
     """
     Собирает из всех директории указанной в BRANCH_FOTO все директории и создает словарь по датам с заказ нарядами
