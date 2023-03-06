@@ -3,14 +3,15 @@ from loader import bot
 import requests
 from config_data.config import BOT_TOKEN, BRANCH_PHOTO, CUR, lock, CONNECT_BASE
 import os
+import threading
 from loguru import logger
+
 ID = 1
 
 
 @bot.message_handler(content_types=['photo'])
 @logger.catch
 def bot_photo(message: Message):
-
     global ID
 
     data = (message.from_user.id,)
@@ -31,11 +32,17 @@ def bot_photo(message: Message):
     file_info = bot.get_file(file_id)
     file = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(BOT_TOKEN, file_info.file_path))
 
-    way = os.path.join(BRANCH_PHOTO, data[0], data[1], file_id + '.png')
-    if not os.path.isdir(os.path.join(BRANCH_PHOTO, data[0], data[1])):
-        os.mkdir(os.path.join(BRANCH_PHOTO, data[0], data[1]))
-    with open(way, 'wb') as open_file:
-        open_file.write(file.content)
+    def write_file(data: list, file):
+        way = os.path.join(BRANCH_PHOTO, data[0], data[1], file_id + '.png')
+        if not os.path.isdir(os.path.join(BRANCH_PHOTO, data[0], data[1])):
+            os.mkdir(os.path.join(BRANCH_PHOTO, data[0], data[1]))
+        with open(way, 'wb') as open_file:
+            open_file.write(file.content)
+
+    func = threading.Thread(target=write_file, args=(data, file))
+    func.daemon = True
+    func.start()
+    func.join()
 
     data_sql = (data[0],)
     with lock:

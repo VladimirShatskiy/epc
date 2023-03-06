@@ -1,3 +1,4 @@
+import threading
 
 from telebot.types import Message
 from loader import bot
@@ -33,14 +34,20 @@ def bot_video(message: Message):
     file_info = bot.get_file(file_id)
     file = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(BOT_TOKEN, file_info.file_path))
 
-    way = os.path.join(BRANCH_PHOTO, data[0], data[1], file_id + '.mov')
-    if os.path.isdir(os.path.join(BRANCH_PHOTO, data[0], data[1])):
-        with open(way, 'wb') as open_file:
-            open_file.write(file.content)
-    else:
-        os.mkdir(os.path.join(BRANCH_PHOTO, data[0], data[1]))
-        with open(way, 'wb') as open_file:
-            open_file.write(file.content)
+    def write_video(data: list, file):
+        way = os.path.join(BRANCH_PHOTO, data[0], data[1], file_id + '.mov')
+        if os.path.isdir(os.path.join(BRANCH_PHOTO, data[0], data[1])):
+            with open(way, 'wb') as open_file:
+                open_file.write(file.content)
+        else:
+            os.mkdir(os.path.join(BRANCH_PHOTO, data[0], data[1]))
+            with open(way, 'wb') as open_file:
+                open_file.write(file.content)
+
+    func = threading.Thread(target=write_video, args=(data, file))
+    func.daemon = True
+    func.start()
+    func.join()
 
     data_sql = (data[0],)
     with lock:
