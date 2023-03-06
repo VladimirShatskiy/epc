@@ -13,6 +13,8 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 
 CONNECT_BASE = sqlite3.connect('drive.sqlite', check_same_thread=False)
 CUR = CONNECT_BASE.cursor()
+lock = threading.Lock()
+
 
 DEFAULT_COMMANDS = (
     ('start', "Запустить бота"),
@@ -22,12 +24,10 @@ DEFAULT_COMMANDS = (
     ('admin', "Администрирование"),
 )
 
-lock = threading.Lock()
 
-BRANCH_USER_DATA = 'user_data'
+
+ORGANIZATION_NAME = "Драйв Моторс"
 BRANCH_PHOTO = 'Photo'
-BRANCH_ORDER = 'Order'
-GROUP_ID = ""
 
 GlobalOrderDict = {}  # список всех директорий со списками заказ нарядов
 
@@ -40,13 +40,10 @@ TYPE_ORDER = \
         "Для сервисных нужд": "Service"
     }
 
-LENGTH_CLOSED_ORDER = 6  # длина слова закрытого заказ наряда
+
 CLOSED_ORDER = 'closed'  # приписка к заказ наряду показывающие закрытый зн
+LENGTH_CLOSED_ORDER = int(len(CLOSED_ORDER))  # длина слова закрытого заказ наряда
 
-FILE_CONFIG_START = {
-    'order': '',
-    'type': '',
-    'rus_type': ''
-}
 
-ORGANIZATION_NAME = "Драйв Моторс"
+
+

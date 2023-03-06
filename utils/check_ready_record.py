@@ -2,7 +2,6 @@ import json
 import os
 from loader import bot
 from telebot.types import Message
-from config_data.config import BRANCH_USER_DATA
 
 
 def check(message: Message) -> bool:
