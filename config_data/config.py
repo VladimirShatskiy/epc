@@ -24,8 +24,6 @@ DEFAULT_COMMANDS = (
     ('admin', "Администрирование"),
 )
 
-
-
 ORGANIZATION_NAME = "Драйв Моторс"
 BRANCH_PHOTO = 'Photo'
 
