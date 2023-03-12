@@ -7,7 +7,7 @@ from config_data.config import GlobalOrderDict, CUR, CONNECT_BASE, BRANCH_PHOTO,
 from keyboards import inline
 from loguru import logger
 from handlers.default_heandlers import up_message
-from handlers.default_heandlers import type_order
+from handlers.default_heandlers import type_order, customer_support
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -78,3 +78,7 @@ def callback_query(call):
 
     elif call.data == "change_active":
         handlers.default_heandlers.admin.change_active(call)
+
+    elif call.data.split(',')[0] == "reply_to_client":
+        handlers.default_heandlers.reply_to_client.reply(call, id_client=call.data.split(',')[1])
+

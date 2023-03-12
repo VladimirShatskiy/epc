@@ -1,4 +1,4 @@
-from config_data.config import CUR, CONNECT_BASE
+from config_data.config import CUR, CONNECT_BASE, CLIENT_COMMANDS, lock, DEFAULT_COMMANDS
 from keyboards.contact import request_contact
 from loader import bot
 from states.contact_info import UserInfo
@@ -36,17 +36,19 @@ def get_contact(message: Message) -> None:
                                                    'бот готов к работе 👍',
                              reply_markup=ReplyKeyboardRemove())
             bot.set_state(message.from_user.id, None)
-            data_update = (data['phone_number'], message.from_user.id, 1,)
+            data_update = (data['phone_number'], message.from_user.id, 1, 3)
             userid = (message.from_user.id,)
-            CUR.execute("SELECT EXISTS(SELECT user_id FROM users WHERE telegram_id = ?)", userid)
-            if CUR.fetchone()[0] == 0:
-                CUR.execute("""INSERT INTO users (phone, telegram_id, active) VALUES (?,?,?)""", data_update)
-                CONNECT_BASE.commit()
+            with lock:
+                CUR.execute("SELECT EXISTS(SELECT user_type FROM users WHERE telegram_id = ?)", userid)
+            client = CUR.fetchone()
+            if client[0] == 0:
+                with lock:
+                    CUR.execute("""INSERT INTO users (phone, telegram_id, active, user_type) VALUES (?,?,?,?)""", data_update)
+                    CONNECT_BASE.commit()
 
     elif message.text.lower() == 'нет':
         bot.send_message(message.from_user.id, "Заполнение анкеты прервано\n"
                                                "У вас нет доступа к боту 😰", reply_markup=ReplyKeyboardRemove())
-
         bot.set_state(message.from_user.id, None)
     else:
 

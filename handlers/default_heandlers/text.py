@@ -31,17 +31,22 @@ def get_text_messages(message):
         ON type_id = user_type WHERE telegram_id = ?""", employee_id)
 
     user_type = CUR.fetchone()[0]
-    if user_type == 'admin' or user_type == 'employee':
+    if user_type != 'client':
         #  Действие при написании сообщения сотрудником сервиса
         with lock:
             CUR.execute("""SELECT "order" FROM users WHERE telegram_id = ?""", employee_id)
         order_from_sql = CUR.fetchone()
         with lock:
             CUR.execute("""SELECT telegram_id FROM users WHERE "order"= ? and user_type = 3""", order_from_sql)
-        telegram_id_client = CUR.fetchone()[0]
+        try:
+            telegram_id_client = CUR.fetchone()[0]
 
-        if telegram_id_client is None:
-            bot.send_message(message.from_user.id, 'Клиент по данному заказ наряду не подключен к боту'
+            if telegram_id_client is None:
+                bot.send_message(message.from_user.id, 'Клиент по данному заказ наряду не подключен к боту'
+                                                       ', отправка сообщения невозможна')
+                return
+        except:
+            bot.send_message(message.from_user.id, 'Не выбран заказ наряд для переписки с клиентом'
                                                    ', отправка сообщения невозможна')
             return
 
@@ -55,13 +60,14 @@ def get_text_messages(message):
             CUR.execute("""SELECT "name" FROM users WHERE telegram_id = ?""", employee_id)
         employee_name = CUR.fetchone()[0]
 
-        record_message(id_user=str(employee_id[0]), order=str(order_from_sql[0]), message_text=message.text)
+        record_message(id_user=str(employee_id[0]), order=str(order_from_sql[0]),
+                       message_text=message.text, user_type=user_type)
 
         text = f"<b><i>Сообщение от {employee_name}, {ORGANIZATION_NAME}</i></b>\n" \
                f"{message.text}"
         bot.send_message(telegram_id_client, text, parse_mode='html')
 
-    elif user_type == 'client':
+    else:
 
         client_id = employee_id
         with lock:
@@ -73,11 +79,22 @@ def get_text_messages(message):
                                                    "как только тут появятся какие либо сообщения можно будет связаться"
                                                    "с мастером и задать ему вопросы")
         else:
-            text = f"<b><i>Ответ клиента, по заказ наряду {return_date[0][1]}</i></b>\n" \
-                   f"{message.text}"
-            record_message(id_user=str(client_id[0]), order=return_date[0][1], message_text=message.text)
-            bot.send_message(return_date[0][0], text, parse_mode='html',
-                             reply_markup=keyboards.inline.return_to_order.keyboard(return_date[0][1]))
+
+            record_message(id_user=str(client_id[0]), order=return_date[0][1],
+                           message_text=message.text, user_type=user_type)
+        # Клиент может ответить предыдущему пользователю, сотрудник нет, только по номеру заказ наряда
+            # Если номера заказ наряда уже не существует, действует проверка
+            way = os.path.join(BRANCH_PHOTO, return_date[0][1])
+            if os.path.isdir(way):
+                text = f"<b><i>Сообщение клиента, по заказ наряду {return_date[0][1]}</i></b>\n" \
+                       f"{message.text}"
+                bot.send_message(return_date[0][0], text, parse_mode='html',
+                                 reply_markup=keyboards.inline.return_to_order.keyboard(return_date[0][1]))
+            else:
+                text = f"<i>Сообщение клиента, по <b>закрытому</b> заказ наряду {return_date[0][1]}</i>\n" \
+                       f"{message.text}"
+                bot.send_message(return_date[0][0], text, parse_mode='html',
+                                 reply_markup=keyboards.inline.reply_to_client.keyboard(client_id[0]))
 
         # Проверка на нехорошие слова в ответе клиента
         for word in ATTENTION_WORDS:
@@ -93,7 +110,7 @@ def get_text_messages(message):
                     bot.send_message(admin[0], text, parse_mode='html')
 
 
-def record_message(id_user, order, message_text):
+def record_message(id_user, order, message_text, user_type):
     """
     Протокол записи беседы по заказ наряду
     :param id_user: id Telegram
@@ -104,22 +121,28 @@ def record_message(id_user, order, message_text):
 
     file_date = 'recording_dialog_' + str(order) + '.txt'
     file_string = os.path.join(BRANCH_PHOTO, str(order), file_date)
+    text = datetime.datetime.now().ctime() + \
+        '\nЗаказ наряд ' + str(order) + ' Пользователь ' + str(id_user) + ' ' + str(user_type) + \
+        '\nСообщение: ' + message_text + '\n\n'
+
     try:
         with open(file_string, 'a', encoding='utf-8') as file:
-            text = datetime.datetime.now().ctime() + '\nЗаказ наряд ' + str(order) + ' Пользователь ' + id_user + \
-                   '\nСообщение "' + message_text + '"\n'
             file.write(text)
     except FileNotFoundError:
         # Сообщение поступает всем админам о сообщении от клиента при закрытом заказ наряде
+        file_date = 'all_recording_dialog.txt'
+        file_string = os.path.join(BRANCH_PHOTO, file_date)
+
+        with open(file_string, 'a', encoding='utf-8') as file:
+            file.write(text)
+
         with lock:
             CUR.execute("""SELECT telegram_id FROM users WHERE user_type = 1""")
         admins = CUR.fetchall()
-        text = "<b><i>Обратите внимание! клиент написал сотруднику при закрытом заказ наряде\n" \
-               "история записи сообщения не ведется\n" \
-               f"заказ наряд {str(order)}\n" \
-               f"Сообщение от клиента</i></b>\n" \
+        text = "<b><i>Обратите внимание!</i></b> ведется переписка при закрытом заказ наряде\n" \
+               "история записана в общий файл переписки\n" \
+               f"Закрытый заказ наряд/id клиента {str(order)}\n" \
+               f"Сообщение\n" \
                f"{message_text}"
         for admin in admins:
             bot.send_message(admin[0], text, parse_mode='html')
-
-
