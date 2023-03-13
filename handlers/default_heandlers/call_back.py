@@ -1,5 +1,4 @@
 import os
-
 import handlers.default_heandlers.admin
 from utils import search_number
 from loader import bot
@@ -81,4 +80,10 @@ def callback_query(call):
 
     elif call.data.split(',')[0] == "reply_to_client":
         handlers.default_heandlers.reply_to_client.reply(call, id_client=call.data.split(',')[1])
+
+    elif call.data == "view_all_dialog":
+        handlers.default_heandlers.admin.view_all_dialog(call)
+
+
+
 

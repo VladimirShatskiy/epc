@@ -23,18 +23,20 @@ def bot_admin(message: Message):
         return
 
     with lock:
-        CUR.execute("""SELECT main.users.name, phone, access_level, active  FROM users JOIN access_level \n"""
-                    """    ON users.user_type = access_level.type_id """)
+        CUR.execute("""SELECT main.users.name, phone, access_level, 'active', telegram_id  
+                       FROM users JOIN access_level 
+                       ON users.user_type = access_level.type_id """)
 
     data = CUR.fetchall()
-    text = [f'Телефон:{phone} Имя: {name}\nДоступ: {access} Статус активности {active}' for name, phone, access, active in data]
+    text = [f'Id telegram:{telegram_id} Телефон:{phone} Имя: {name} Доступ: {access} Статус активности {active}'
+            for name, phone, access, active, telegram_id in data]
     text = '\n'.join(text) + '\n'
 
     with open('users.txt', 'w', encoding='utf-8') as file:
         file.write(text)
     with open('users.txt', 'r', encoding='utf-8') as file:
         bot.send_document(message.from_user.id, file)
-    text_fo_bot = "Полный список пользователей в файле\n\n" + text[:300]
+    text_fo_bot = "Полный список пользователей в файле\n\n" + text[:100]
     bot.send_message(message.from_user.id, text_fo_bot, reply_markup=keyboards.inline.admin.keyboard())
 
 
@@ -174,4 +176,17 @@ def change_active(message: Message):
                                     'Пример: 1235456445 1')
 
     bot.register_next_step_handler(text_message, change_active_write)
+
+
+@logger.catch
+def view_all_dialog(message: Message):
+    file_name = 'all_recording_dialog.txt'
+    file = os.path.join(BRANCH_PHOTO, file_name)
+
+    try:
+        with open(file, 'r', encoding='utf-8') as file_open:
+            bot.send_document(message.from_user.id, file_open)
+    except FileNotFoundError:
+        bot.send_message(message.from_user.id, 'Неверно указан номер заказ наряда '
+                                               'или переписки между клиентом и сотрудником не было')
 

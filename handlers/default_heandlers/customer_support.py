@@ -1,8 +1,12 @@
 from telebot.types import Message
 from config_data.config import CUR, lock
 from loader import bot
+from keyboards.inline import reply_to_client
+from utils.message import record_message
+from loguru import logger
 
 
+@logger.catch()
 def message_service(message: Message):
     if message.text.lower() == "нет":
         bot.send_message(message.from_user.id, "Вышел из обращения к службе поддержки")
@@ -24,10 +28,13 @@ def message_service(message: Message):
     telegram_id = customer[0]
 
     for item in telegram_id:
-        bot.send_message(item, text, parse_mode='html')
+        bot.send_message(item, text, parse_mode='html', reply_markup=reply_to_client.keyboard(message.from_user.id))
 
     bot.send_message(message.from_user.id,
                      "Ваше сообщение отправлено, ждите пожалуйста обратной связи")
+
+    record_message(id_user=message.from_user.id, order=telegram_id[0],
+                   message_text=message.text, user_type='client')
 
 
 @bot.message_handler(commands=['customer_support'])

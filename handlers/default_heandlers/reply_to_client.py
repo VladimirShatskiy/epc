@@ -1,4 +1,4 @@
-from config_data.config import CUR, lock, ORGANIZATION_NAME
+from config_data.config import CUR, lock, ORGANIZATION_NAME, CONNECT_BASE
 from handlers.default_heandlers.text import record_message
 from loader import bot
 
@@ -22,6 +22,11 @@ def reply_to(message):
     text = f"<b><i>Сообщение от {employee_name}, {ORGANIZATION_NAME}</i></b>\n" \
            f"{message.text}"
     bot.send_message(ID_CLIENT, text, parse_mode='html')
+
+    data = (message.from_user.id, ID_CLIENT,)
+    with lock:
+        CUR.execute("""UPDATE users SET to_answer_id = ? WHERE telegram_id = ?""", data)
+        CONNECT_BASE.commit()
 
     record_message(id_user=message.from_user.id, order=ID_CLIENT,
                    message_text=message.text, user_type=employee_type)

@@ -1,13 +1,12 @@
-import datetime
 import os
-
 from loguru import logger
 
-import keyboards.inline.return_to_order
+
+from keyboards.inline import return_to_order, reply_to_client
 from config_data.config import CUR, lock, ORGANIZATION_NAME, CONNECT_BASE, BRANCH_PHOTO
 from database.attention_words import ATTENTION_WORDS
 from loader import bot
-from keyboards import inline
+from utils.message import record_message
 
 
 @bot.message_handler(content_types=['text'])
@@ -53,7 +52,7 @@ def get_text_messages(message):
         # Приписываем клиенту ID написавшего ему мастера
         data = (str(employee_id[0]), telegram_id_client,)
         with lock:
-            CUR.execute("""UPDATE users SET to_answer_id = ? WHERE telegram_id = ?""", data)
+            CUR.execute("UPDATE users SET to_answer_id = ? WHERE telegram_id = ?", data)
             CONNECT_BASE.commit()
 
         with lock:
@@ -77,7 +76,9 @@ def get_text_messages(message):
         if return_date[0][0] == "" or return_date[0][0] is None:
             bot.send_message(message.from_user.id, "Информации по состоянию Вашего автомобиля пока нет,"
                                                    "как только тут появятся какие либо сообщения можно будет связаться"
-                                                   "с мастером и задать ему вопросы")
+                                                   "с мастером и задать ему вопросы\n"
+                                                   "Если у вас есть вопросы можно связаться со службой помощи клиентам,"
+                                                   " выбрав пункт из меню")
         else:
 
             record_message(id_user=str(client_id[0]), order=return_date[0][1],
@@ -89,12 +90,12 @@ def get_text_messages(message):
                 text = f"<b><i>Сообщение клиента, по заказ наряду {return_date[0][1]}</i></b>\n" \
                        f"{message.text}"
                 bot.send_message(return_date[0][0], text, parse_mode='html',
-                                 reply_markup=keyboards.inline.return_to_order.keyboard(return_date[0][1]))
+                                 reply_markup=return_to_order.keyboard(return_date[0][1]))
             else:
                 text = f"<i>Сообщение клиента, по <b>закрытому</b> заказ наряду {return_date[0][1]}</i>\n" \
                        f"{message.text}"
                 bot.send_message(return_date[0][0], text, parse_mode='html',
-                                 reply_markup=keyboards.inline.reply_to_client.keyboard(client_id[0]))
+                                 reply_markup=reply_to_client.keyboard(client_id[0]))
 
         # Проверка на нехорошие слова в ответе клиента
         for word in ATTENTION_WORDS:
@@ -110,39 +111,4 @@ def get_text_messages(message):
                     bot.send_message(admin[0], text, parse_mode='html')
 
 
-def record_message(id_user, order, message_text, user_type):
-    """
-    Протокол записи беседы по заказ наряду
-    :param id_user: id Telegram
-    :param order: номер заказ наряда
-    :param message_text: текс отправленного сообщения
-    :return:
-    """
 
-    file_date = 'recording_dialog_' + str(order) + '.txt'
-    file_string = os.path.join(BRANCH_PHOTO, str(order), file_date)
-    text = datetime.datetime.now().ctime() + \
-        '\nЗаказ наряд ' + str(order) + ' Пользователь ' + str(id_user) + ' ' + str(user_type) + \
-        '\nСообщение: ' + message_text + '\n\n'
-
-    try:
-        with open(file_string, 'a', encoding='utf-8') as file:
-            file.write(text)
-    except FileNotFoundError:
-        # Сообщение поступает всем админам о сообщении от клиента при закрытом заказ наряде
-        file_date = 'all_recording_dialog.txt'
-        file_string = os.path.join(BRANCH_PHOTO, file_date)
-
-        with open(file_string, 'a', encoding='utf-8') as file:
-            file.write(text)
-
-        with lock:
-            CUR.execute("""SELECT telegram_id FROM users WHERE user_type = 1""")
-        admins = CUR.fetchall()
-        text = "<b><i>Обратите внимание!</i></b> ведется переписка при закрытом заказ наряде\n" \
-               "история записана в общий файл переписки\n" \
-               f"Закрытый заказ наряд/id клиента {str(order)}\n" \
-               f"Сообщение\n" \
-               f"{message_text}"
-        for admin in admins:
-            bot.send_message(admin[0], text, parse_mode='html')
