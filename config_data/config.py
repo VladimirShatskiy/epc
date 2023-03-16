@@ -23,11 +23,6 @@ DEFAULT_COMMANDS = (
     ('admin', "Администрирование"),
 )
 
-CLIENT_COMMANDS = (
-    ('start', "Запустить бота"),
-    ('help', "Вывести справку"),
-)
-
 lock = threading.Lock()
 
 BRANCH_USER_DATA = 'user_data'

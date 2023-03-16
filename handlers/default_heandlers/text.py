@@ -1,11 +1,13 @@
 import os
 from loguru import logger
 
-
+from handlers.default_heandlers.order import bot_order
+from handlers.default_heandlers.start import bot_start
 from keyboards.inline import return_to_order, reply_to_client
 from config_data.config import CUR, lock, ORGANIZATION_NAME, CONNECT_BASE, BRANCH_PHOTO
 from database.attention_words import ATTENTION_WORDS
 from loader import bot
+
 from utils.message import record_message
 
 
@@ -24,6 +26,14 @@ def get_text_messages(message):
     :param message:
     :return:
     """
+
+    if message.text == '/start':
+        bot_start(message)
+        return
+
+    elif message.text == '/order':
+        bot_order(message)
+
     employee_id = (message.from_user.id,)
     with lock:
         CUR.execute("""SELECT "access_level" FROM users JOIN access_level al  
