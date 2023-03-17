@@ -1,4 +1,4 @@
-from config_data.config import CUR, CONNECT_BASE, CLIENT_COMMANDS, lock, DEFAULT_COMMANDS
+from config_data.config import CUR, CONNECT_BASE,  lock, DEFAULT_COMMANDS
 from keyboards.contact import request_contact
 from loader import bot
 from states.contact_info import UserInfo

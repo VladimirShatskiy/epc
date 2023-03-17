@@ -1,5 +1,6 @@
 from telebot.types import Message
 from config_data.config import CUR, lock
+from handlers.default_heandlers.text import record_message
 from loader import bot
 from keyboards.inline import reply_to_client
 from utils.message import record_message
@@ -26,6 +27,9 @@ def message_service(message: Message):
            f"Текст сообщения:\n" \
            f"<i>{message.text}</i>"
     telegram_id = customer[0]
+
+    # record_message(id_user=message.from_user.id, order="В клиентскую службу",
+    #                message_text=message.text, user_type=employee_type)
 
     for item in telegram_id:
         bot.send_message(item, text, parse_mode='html', reply_markup=reply_to_client.keyboard(message.from_user.id))

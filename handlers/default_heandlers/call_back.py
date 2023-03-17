@@ -1,12 +1,11 @@
 import os
 import handlers.default_heandlers.admin
-from utils import search_number
+from utils import search_number, barcode
 from loader import bot
 from config_data.config import GlobalOrderDict, CUR, CONNECT_BASE, BRANCH_PHOTO, lock
 from keyboards import inline
 from loguru import logger
-from handlers.default_heandlers import up_message
-from handlers.default_heandlers import type_order, customer_support
+from handlers.default_heandlers import up_message, type_order
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -26,6 +25,8 @@ def callback_query(call):
         except:
             bot.send_message(call.from_user.id, 'Произошла ошибка,\n'
                                                 ' просьба начать заново выбрав в меню команду\n/order')
+    elif call.data == 'get_barcode':
+        barcode.barcode_start(call)
 
     elif call.data.split(',')[0] == "order":
         data = (call.data.split(',')[1], call.from_user.id,)
