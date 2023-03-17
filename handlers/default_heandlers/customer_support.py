@@ -42,7 +42,7 @@ def message_service(message: Message):
 
 
 @bot.message_handler(commands=['customer_support'])
-def bot_order(message: Message):
+def bot_customer_support(message: Message):
 
     text_message = bot.send_message(message.from_user.id,
                                     "Просьба написать свое обращение.\n"

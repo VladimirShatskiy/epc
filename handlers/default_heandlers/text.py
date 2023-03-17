@@ -1,7 +1,7 @@
 import os
 from loguru import logger
 
-from handlers.default_heandlers import order, start, help, type_order
+from handlers.default_heandlers import order, start, help, type_order, customer_support
 from handlers.default_heandlers.admin import bot_admin
 from keyboards.inline import return_to_order, reply_to_client
 from config_data.config import CUR, lock, ORGANIZATION_NAME, CONNECT_BASE, BRANCH_PHOTO
@@ -26,7 +26,6 @@ def get_text_messages(message):
     :param message:
     :return:
     """
-
     if message.text == '/start':
         start.bot_start(message)
         return
@@ -45,6 +44,10 @@ def get_text_messages(message):
 
     elif message.text == '/admin':
         bot_admin(message)
+        return
+
+    elif message.text == '/customer_support':
+        customer_support.bot_customer_support(message)
         return
 
     employee_id = (message.from_user.id,)
