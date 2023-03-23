@@ -1,10 +1,8 @@
-from config_data.config import CUR, CONNECT_BASE,  lock, DEFAULT_COMMANDS
+from config_data.config import CUR, CONNECT_BASE,  lock
 from keyboards.contact import request_contact
 from loader import bot
 from states.contact_info import UserInfo
 from telebot.types import Message, ReplyKeyboardRemove
-
-from utils.set_bot_commands import set_default_commands
 
 
 @bot.message_handler(commands=['survey'])

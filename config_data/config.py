@@ -25,9 +25,7 @@ DEFAULT_COMMANDS = (
 
 lock = threading.Lock()
 
-BRANCH_USER_DATA = 'user_data'
 BRANCH_PHOTO = 'Photo'
-BRANCH_ORDER = 'Order'
 GROUP_ID = ""
 
 GlobalOrderDict = {}  # список всех директорий со списками заказ нарядов
@@ -41,14 +39,7 @@ TYPE_ORDER = \
         "Для сервисных нужд": "Service"
     }
 
-
 CLOSED_ORDER = 'closed'  # приписка к заказ наряду показывающие закрытый зн
 LENGTH_CLOSED_ORDER = len(CLOSED_ORDER)  # длина слова закрытого заказ наряда
-
-FILE_CONFIG_START = {
-    'order': '',
-    'type': '',
-    'rus_type': ''
-}
 
 ORGANIZATION_NAME = "Драйв Моторс"
