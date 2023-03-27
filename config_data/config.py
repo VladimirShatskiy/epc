@@ -2,6 +2,7 @@ import os
 import sqlite3
 import threading
 
+
 from dotenv import load_dotenv, find_dotenv
 
 if not find_dotenv():
@@ -24,7 +25,7 @@ DEFAULT_COMMANDS = (
 )
 
 lock = threading.Lock()
-BRANCH_PHOTO = 'F:\Payton\Programing\get-photo-bot\Photo'
+BRANCH_PHOTO = 'Photo'
 GROUP_ID = ""
 
 GlobalOrderDict = {}  # список всех директорий со списками заказ нарядов

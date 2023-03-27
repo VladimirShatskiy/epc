@@ -9,6 +9,7 @@ from handlers.default_heandlers.order import bot_order
 import requests
 from pyzbar import pyzbar
 import cv2
+from keyboards import inline
 
 from utils import save_order_to_sql
 
@@ -43,22 +44,30 @@ def barcode_return(message: Message):
             with lock:
                 CUR.execute("""SELECT "order" FROM "orders_list" WHERE barcode = ?""", (text,))
                 data = CUR.fetchall()
+            if data == []:
+                # print(f'иду читать папки {text}')
+                temp = save_order_to_sql.list_orders()
+                # print(f'вышел из чтения {temp}')
+                with lock:
+                    CUR.execute("""SELECT "order" FROM "orders_list" WHERE barcode = ?""", (text,))
+                    data = CUR.fetchall()
+                # print(f'после прочтения папок {text} {data}')
                 if data == []:
-                    print(f'иду читать папки {text}')
-                    temp = save_order_to_sql.list_orders()
-                    print(f'вышел из чтения {temp}')
-                    with lock:
-                        CUR.execute("""SELECT "order" FROM "orders_list" WHERE barcode = ?""", (text,))
-                        data = CUR.fetchall()
-                    print(f'после прочтения папок {text} {data}')
-                    if data == []:
-                        print('папки прочитал, все  равно не найден ')
-                    else:
-                        print("нашелсо второго раза", data[0])
+                    bot.send_message(message.from_user.id, "Штрих код связан с заказ нарядом, повторите попытку, "
+                                                           "возможно вы используете изображение с монитора")
+                    os.remove("temp.jpg")
+                    bot_order(message)
+                    # print('папки прочитал, все  равно не найден ')
                 else:
-                    print("Первое чтение когда сразу нашел", data[0])
+                    # print("нашел со второго раза", data[0])
+                    text = "Просьба подтвердить заказ наряд"
+                    rk =inline.choice_order.keyboard(data[0])
+            else:
+                # Когда штрих код сразу найден в базе
+                text = "Просьба подтвердить заказ наряд"
+                rk =inline.choice_order.keyboard(data[0])
 
-            bot.send_message(message.from_user.id, text, reply_markup=ReplyKeyboardRemove())
+            bot.send_message(message.from_user.id, text, reply_markup=rk)
             os.remove("temp.jpg")
 
     else:
