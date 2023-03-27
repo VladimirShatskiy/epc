@@ -24,8 +24,7 @@ DEFAULT_COMMANDS = (
 )
 
 lock = threading.Lock()
-
-BRANCH_PHOTO = 'Photo'
+BRANCH_PHOTO = 'F:\Payton\Programing\get-photo-bot\Photo'
 GROUP_ID = ""
 
 GlobalOrderDict = {}  # список всех директорий со списками заказ нарядов

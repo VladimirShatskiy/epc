@@ -1,3 +1,4 @@
+import json
 import os
 import handlers.default_heandlers.admin
 from utils import search_number, barcode
@@ -38,11 +39,12 @@ def callback_query(call):
 
 #  Проверка наличия телефонного номера в папке заказ наряда
         try:
-            way = os.path.join(BRANCH_PHOTO, data[0], 'phone.txt')
+            way = os.path.join(BRANCH_PHOTO, data[0], 'content.txt')
             with open(way, 'r') as open_file:
-                phone = open_file.read()
+                data = json.load(open_file)
+                phone = data['phone']
 
-            data_sql = (data[0], phone)
+            data_sql = (data['order'], phone)
             with lock:
                 CUR.execute("""UPDATE users SET "order" = ? WHERE  "phone" = ?""", data_sql)
                 CONNECT_BASE.commit()
