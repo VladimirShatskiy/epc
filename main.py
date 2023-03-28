@@ -1,4 +1,5 @@
 from loader import bot
+from utils.get_plate_number import car_plate_number
 from utils.save_order_to_sql import list_orders
 from utils.set_bot_commands import set_default_commands
 import handlers

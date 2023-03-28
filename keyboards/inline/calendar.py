@@ -16,6 +16,8 @@ def keyboard(order_list: list) -> InlineKeyboardMarkup:
         markup.add(button)
     button = InlineKeyboardButton("Найти заказ наряд по номеру", callback_data='search_number')
     markup.add(button)
-    button = InlineKeyboardButton("Найти заказ наряд по штрих коду", callback_data='get_barcode')
+    button = InlineKeyboardButton("Найти заказ наряд по штрих коду 🎹", callback_data='get_barcode')
+    markup.add(button)
+    button = InlineKeyboardButton("Найти заказ наряд по фото госномера 🚘", callback_data='get_plate_number')
     markup.add(button)
     return markup

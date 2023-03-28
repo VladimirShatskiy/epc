@@ -8,6 +8,8 @@ def list_orders():
     Проверка всех папок вдиректории с заказнаряами. при обнаружени файла с данными переностятся данные в SQL.
     После чего, по SQL бале проверяются всезаказ наряда на наличии папок, техпапок чтонет,
     в SQL ставиться признак закртого заказнаряда
+    Так же, проводится проверка наличия папок с номерами заказ нарадов с базой SQL при отсутствии папки SQL ставится
+    призак закрытого заказ наряда
     :return:
     """
     list_orders_dict = []
@@ -41,5 +43,19 @@ def list_orders():
                                 (item['order'], item['phone'], item['plate_number'], item['barcode'], ))
                 CONNECT_BASE.commit()
 
+    orders_list = []
+# Перевод статуса заказ нарада в архив
 
+    for item in list_orders_dict:
+        orders_list.append(item['order'])
 
+    with lock:
+        CUR.execute("""SELECT "order" FROM "orders_list" WHERE "closed" = FALSE""")
+        orders_list_sql = CUR.fetchall()
+
+    for item in orders_list_sql:
+        order = item[0]
+        if order not in orders_list:
+            with lock:
+                CUR.execute("""UPDATE orders_list SET closed = TRUE WHERE "order" = ?""", (order,))
+                CONNECT_BASE.commit()
