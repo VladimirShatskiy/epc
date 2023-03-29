@@ -4,7 +4,7 @@ import cv2
 from imutils import contours
 import requests
 
-from config_data.config import CUR, lock
+from config_data.config import CUR, lock, BRANCH_TESSERACT
 from handlers.default_heandlers.order import bot_order
 from keyboards import inline
 from loader import bot
@@ -62,7 +62,7 @@ def car_plate_number(message):
         cnts = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         cnts, _ = contours.sort_contours(cnts[0])
 
-        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+        pytesseract.pytesseract.tesseract_cmd = BRANCH_TESSERACT
         plate_namders = []
 
         plate_namders, carplate_image_RGB\

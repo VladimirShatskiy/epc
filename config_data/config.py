@@ -26,6 +26,7 @@ DEFAULT_COMMANDS = (
 
 lock = threading.Lock()
 BRANCH_PHOTO = 'Photo'
+BRANCH_TESSERACT = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 GROUP_ID = ""
 
 GlobalOrderDict = {}  # список всех директорий со списками заказ нарядов
