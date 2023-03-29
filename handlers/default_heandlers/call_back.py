@@ -7,6 +7,7 @@ from config_data.config import GlobalOrderDict, CUR, CONNECT_BASE, BRANCH_PHOTO,
 from keyboards import inline
 from loguru import logger
 from handlers.default_heandlers import up_message, type_order
+from utils.get_plate_number import get_plate_number_start
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -28,6 +29,9 @@ def callback_query(call):
                                                 ' просьба начать заново выбрав в меню команду\n/order')
     elif call.data == 'get_barcode':
         barcode.barcode_start(call)
+
+    elif call.data == 'get_plate_number':
+        get_plate_number_start(call)
 
     elif call.data.split(',')[0] == "order":
         data = (call.data.split(',')[1], call.from_user.id,)

@@ -1,13 +1,14 @@
 import os
 import json
 from config_data.config import BRANCH_PHOTO, CUR, CONNECT_BASE, lock
+from utils import plate_number_form
 
 
 def list_orders():
     """
-    Проверка всех папок вдиректории с заказнаряами. при обнаружени файла с данными переностятся данные в SQL.
-    После чего, по SQL бале проверяются всезаказ наряда на наличии папок, техпапок чтонет,
-    в SQL ставиться признак закртого заказнаряда
+    Проверка всех папок в директории с заказ нарядами. При обнаружени файла с данными переностятся данные в SQL.
+    После чего, по SQL бале проверяются всезаказ наряда на наличии папок, тех папок, что нет,
+    в SQL ставиться признак закрытого заказ наряда
     Так же, проводится проверка наличия папок с номерами заказ нарадов с базой SQL при отсутствии папки SQL ставится
     призак закрытого заказ наряда
     :return:
@@ -29,7 +30,8 @@ def list_orders():
             CUR.execute("""SELECT "order" FROM orders_list WHERE "order" = ? """, data)
         if CUR.fetchone():
             with lock:
-                data_for_update = (item['barcode'], item['plate_number'], item['phone'], item['order'], )
+                data_for_update = (item['barcode'],
+                                   plate_number_form.read(item['plate_number']), item['phone'], item['order'], )
                 CUR.execute("""UPDATE orders_list 
                 SET barcode = ?, 
                     plate_number = ?, 
@@ -40,7 +42,8 @@ def list_orders():
             with lock:
                 CUR.execute("""INSERT INTO "orders_list"("closed", "order", "phone", "plate_number", "barcode")
                                 VALUES (FALSE, ?,?,?,?)""",
-                                (item['order'], item['phone'], item['plate_number'], item['barcode'], ))
+                                (item['order'], item['phone'],
+                                 plate_number_form.read(item['plate_number']), item['barcode'], ))
                 CONNECT_BASE.commit()
 
     orders_list = []
