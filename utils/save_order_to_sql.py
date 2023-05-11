@@ -18,7 +18,7 @@ def list_orders():
     for item in os.listdir(BRANCH_PHOTO):
         new_way = os.path.join(BRANCH_PHOTO, item)
         if os.path.isdir(new_way):
-            file_name = os.path.join(new_way, 'content.txt')
+            file_name = os.path.join(new_way, 'content 2.txt')
             if os.path.isfile(file_name):
                 with open(file_name, 'r', encoding='utf-8') as file_open:
                     data = json.load(file_open)
