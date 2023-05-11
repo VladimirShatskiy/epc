@@ -43,7 +43,7 @@ def callback_query(call):
 
 #  Проверка наличия телефонного номера в папке заказ наряда
         try:
-            way = os.path.join(BRANCH_PHOTO, data[0], 'content 2.txt')
+            way = os.path.join(BRANCH_PHOTO, data[0], 'content.txt')
             with open(way, 'r', encoding='utf_8_sig') as open_file:
                 data = json.load(open_file)
                 phone = data['phone']
