@@ -5,6 +5,7 @@ import sys
 # настройка логирования
 from loguru import logger
 
+
 logger.remove()
 logger.add("debug.log", filter=lambda record: record["level"].name == "DEBUG", rotation='1 MB', enqueue=True)
 logger.add("info.log", filter=lambda record: record["level"].name == "INFO", rotation='1 MB', enqueue=True)

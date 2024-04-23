@@ -24,12 +24,12 @@ SECRET_KEY = 'django-insecure-=aeb^7btf28+13f_p(@7zqut*el2)f!7mx1rb8$q!el6^!%wa^
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 MY_DEBUG = True
 
 ALLOWED_HOSTS = [
-    '92.255.111.103',
     '127.0.0.1',
+    '92.255.111.103',
+    '92.255.111.103'
 ]
 
 
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'shopapp',
     'telegramapp',
+    'botapp',
 ]
 
 MIDDLEWARE = [
@@ -80,24 +81,24 @@ WSGI_APPLICATION = 'shop_bot.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'shop_bot',
-        'USER': 'postgres',
-        'PASSWORD': 'Direktor',
-        'HOST': '127.0.0.1',
-        'PORT': '5433',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'shop_bot',
+#         'USER': 'postgres',
+#         'PASSWORD': 'Direktor',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5433',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

@@ -26,3 +26,7 @@ urlpatterns = [
 
 # необходимо для вывода фото изображений
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+admin.site.index_title = 'Добро пожаловать в интерфейс администратора!'
+admin.site.site_header = 'Административная панель Bot магазина'
+admin.site.site_title = 'Админка'

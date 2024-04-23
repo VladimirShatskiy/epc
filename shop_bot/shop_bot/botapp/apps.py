@@ -1,8 +1,6 @@
 from django.apps import AppConfig
 
 
-class ShopappConfig(AppConfig):
+class BotappConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'shopapp'
-    verbose_name = 'Магазин'
-
+    name = 'botapp'
